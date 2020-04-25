@@ -10,7 +10,6 @@ class point:
 		self.orb = orb # orb feature
 		self.knn_list = knn_list
 
-
 def load_data(path):
 	files = os.listdir(path)
 	images = []
@@ -27,9 +26,9 @@ def get_ORB_feature(images):
 		kp, des = orb.detectAndCompute(images[i], None)
 
 		# draw key points if you want
-		img = cv2.drawKeypoints(images[i], kp, np.array([]))
-		plt.imshow(img)
-		plt.show()
+		# img = cv2.drawKeypoints(images[i], kp, np.array([]))
+		# plt.imshow(img)
+		# plt.show()
 
 		# store each point's information in one list and map to the image
 		pts = []
@@ -38,13 +37,4 @@ def get_ORB_feature(images):
 			pts.append(pt)
 		dic[i] = pts
 	return dic
-
-
-
-
-
-
-
-
-
 
