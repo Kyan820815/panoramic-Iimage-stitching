@@ -37,7 +37,7 @@ def find_knn(dic):
 		
 		points = dic[i]
 		for j in range(n_feat[i]):
-			knn_idx 	= kd_tree.query(points[j].orb.reshape(1,-1), k=4, return_distance=False)
+			knn_idx  = kd_tree.query(points[j].orb.reshape(1,-1), k=4, return_distance=False)
 			knn_list = []
 			for k in range(knn_idx.shape[1]):
 				img_idx = feat_to_img[tuple(extract_feat[knn_idx[0, k]])]
