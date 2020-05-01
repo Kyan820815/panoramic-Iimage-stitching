@@ -9,6 +9,11 @@ class point:
 		self.pos = pos # position information of key point
 		self.orb = orb # orb feature
 		self.knn_list = knn_list
+		
+class homography:
+     def __init__(self, H, img_idx):
+        self.H = H  # homography matrix
+        self.img_idx = img_idx  # match index
 
 def load_data(path):
 	files = os.listdir(path)
