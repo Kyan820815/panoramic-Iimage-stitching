@@ -3,12 +3,12 @@ import cv2
 import numpy as np
 from final_part1 import homography 
 
-def candidate_match(dic, m = 5):
+def candidate_match(img_pts_dict, m = 5):
 	# m : number of candidates
 	candidate_map = {}
-	for i in range(len(dic)):
+	for i in range(len(img_pts_dict)):
 		allimg = []  # candidate all image id
-		for each in dic[i]:
+		for each in img_pts_dict[i]:
 			allimg += each.knn_list
 		result = dict(Counter(allimg))  # mapping from image id to count
 		sorted_res = sorted(result.items(), key=lambda item: item[1], reverse=True)  # sorted reversely
@@ -17,14 +17,14 @@ def candidate_match(dic, m = 5):
 	return candidate_map
 
 
-def get_Allpossible_Match(dic, a, b):
+def get_allpossible_match(img_pts_dict, a, b):
 	featuresA = []
 	featuresB = []
-	for each in dic[a]:
+	for each in img_pts_dict[a]:
 		featuresA.append(each.orb)
 	featuresA = np.array(featuresA)
 	
-	for each in dic[b]:
+	for each in img_pts_dict[b]:
 		featuresB.append(np.array(each.orb))
 	featuresB = np.array(featuresB)
 
@@ -34,7 +34,7 @@ def get_Allpossible_Match(dic, a, b):
 	return All_Matches
 
 	
-def All_validmatches(AllMatches, owe_ratio):
+def all_validmatches(AllMatches, owe_ratio):
 		#to get all valid matches according to lowe concept.
 		lowe_ratio = 0.75
 		valid_matches = []
@@ -45,54 +45,53 @@ def All_validmatches(AllMatches, owe_ratio):
 
 		return valid_matches
 
-def Compute_Homography(pointsA,pointsB,max_Threshold):
+def compute_homography(pointsA,pointsB,max_Threshold):
 	#to compute homography using points in both images
 
-	H, mask = cv2.findHomography(pointsA, pointsB, cv2.RANSAC, max_Threshold)
-	return (H, mask)
+	H, status = cv2.findHomography(pointsA, pointsB, cv2.RANSAC, max_Threshold)
+	return (H, status)
 
 def match_verification(inliers, matches):
-	a = 9
+	a = 8
 	b = 0.3
 	if inliers > a + b * matches:
 		return True
 	else:
 		return False
 
-def matchKeypoints(dic, lowe_ratio, max_Threshold,m_candidate):
+def find_img_pair(img_pts_dict, lowe_ratio, max_Threshold, m_candidate):
+	# dictionary for each image
+	img_homo_dict = {}
 
-	valid_matches = [] # n*val; n = total matche pairs = image number*candidate per image; val: validmatches for each match pairs
-	H = {}
-	img_idx = {}
+	# find candidates for each image
+	candidate_map = candidate_match(img_pts_dict, m=m_candidate)
 
-	candidate_map = candidate_match(dic, m=m_candidate)
+	# find image k and its candidates v (list) and check if this match is valid
 	for k,v in candidate_map.items():
-		I = []
-		H[k] = {}
+		# list of img k
+		h_cells = []
+		# for each candidate for image k
 		for i in range(m_candidate):
 			# compute the valid matches of image k and image v[i]
-			pre_match = get_Allpossible_Match(dic,k,v[i])
-			per_match = All_validmatches(pre_match,lowe_ratio)
-			valid_matches.append(per_match)
+			pre_match = get_allpossible_match(img_pts_dict,k,v[i])
+			per_match = all_validmatches(pre_match,lowe_ratio)
 			if len(per_match) > 4:
+
 				# pointsA: position of jth feature in image k.
 				# j :feature index
-				pointsA = np.float32([dic[k][j].pos.pt for (_, j) in per_match])
-				pointsB = np.float32([dic[v[i]][j].pos.pt for (j, _) in per_match])
+				pointsA = np.float32([img_pts_dict[k][j].pos.pt for (_, j) in per_match])
+				pointsB = np.float32([img_pts_dict[v[i]][j].pos.pt for (j, _) in per_match])
 
-				h, mask = Compute_Homography(pointsA, pointsB, max_Threshold)
-				inliers = mask.ravel().tolist()
-				if match_verification(len(inliers), len(per_match)) is True:
-					H[k][i] = h
-					I.append(v[i])
-		if len(I) == 0:
-			I = v
+				h, status = compute_homography(pointsA, pointsB, max_Threshold)
+				inliers = status.ravel().tolist()
 
-		img_idx[k] = I
+				# if match_verification(len(inliers), len(per_match)) is True:
 
-	homo = homography(H, img_idx)
-				
-	return homo
+				# k and v[i] is valid match
+				# h is homo from img k to img v[i]
+				h_cell = homography(h, v[i])
+				h_cells.append(h_cell)
+							
+		img_homo_dict[k] = h_cells
 
-		
-
+	return img_homo_dict

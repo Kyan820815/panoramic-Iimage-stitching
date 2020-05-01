@@ -3,9 +3,9 @@ from sklearn.neighbors import KDTree
 import cv2
 import numpy as np
 
-def find_knn(dic):
+def find_knn(img_pts_dict):
 	# number of images
-	n = len(dic)
+	n = len(img_pts_dict)
 	# list, each element is a set of features in one image
 	feat_list = []
 	# number of features in one image
@@ -14,9 +14,9 @@ def find_knn(dic):
 	feat_to_img = {}
 
 	for i in range(n):
-		n_feat.append(len(dic[i]))
+		n_feat.append(len(img_pts_dict[i]))
 		# extract features in each image
-		points = dic[i]
+		points = img_pts_dict[i]
 		# list, each element is a feature in one image
 		feat_per_img = []
 		for j in range(len(points)):
@@ -35,14 +35,14 @@ def find_knn(dic):
 		extract_feat = np.delete(feature_set, np.s_[start : start+n_feat[i]], axis=0)
 		kd_tree = KDTree(extract_feat, leaf_size = 40)
 		
-		points = dic[i]
+		points = img_pts_dict[i]
 		for j in range(n_feat[i]):
 			knn_idx  = kd_tree.query(points[j].orb.reshape(1,-1), k=4, return_distance=False)
 			knn_list = []
 			for k in range(knn_idx.shape[1]):
 				img_idx = feat_to_img[tuple(extract_feat[knn_idx[0, k]])]
 				knn_list.append(img_idx)
-			dic[i][j].knn_list = knn_list
+			img_pts_dict[i][j].knn_list = knn_list
 		start += n_feat[i]
 
-	return dic
+	return img_pts_dict

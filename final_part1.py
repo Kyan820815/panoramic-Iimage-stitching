@@ -16,16 +16,18 @@ class homography:
         self.img_idx = img_idx  # match index
 
 def load_data(path):
-	files = os.listdir(path)
-	images = []
-	for file in files:
-		images.append(color.rgb2grey(io.imread(path + '/' + file)))
+    files = os.listdir(path)
+    l = len(files)
+    images = [0] * l
+    for file in files:
+        idx = int(file[-6:-4]) - 1   # if adobe dataset, remove -1
+        images[idx] = color.rgb2grey(io.imread(path + '/' + file))
 
-	return np.array(images)
+    return np.array(images)
 
 def get_ORB_feature(images):
 	orb = cv2.ORB_create()
-	dic = {}
+	img_pts_dict = {}
 	for i in range(len(images)):
 		# get orb features of each image
 		kp, des = orb.detectAndCompute(images[i], None)
@@ -40,6 +42,6 @@ def get_ORB_feature(images):
 		for j in range(len(kp)):
 			pt = point(kp[j], des[j], [])
 			pts.append(pt)
-		dic[i] = pts
-	return dic
+		img_pts_dict[i] = pts
+	return img_pts_dict
 
