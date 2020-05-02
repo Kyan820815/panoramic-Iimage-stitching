@@ -21,8 +21,7 @@ def load_data(path):
     images = [0] * l
     for file in files:
         idx = int(file[-6:-4]) - 1   # if adobe dataset, remove -1
-        images[idx] = color.rgb2grey(io.imread(path + '/' + file))
-
+        images[idx] = io.imread(path + '/' + file)
     return np.array(images)
 
 def get_ORB_feature(images):
@@ -30,7 +29,8 @@ def get_ORB_feature(images):
 	img_pts_dict = {}
 	for i in range(len(images)):
 		# get orb features of each image
-		kp, des = orb.detectAndCompute(images[i], None)
+		gray_img = color.rgb2grey(images[i])
+		kp, des = orb.detectAndCompute(gray_img, None)
 
 		# draw key points if you want
 		# img = cv2.drawKeypoints(images[i], kp, np.array([]))

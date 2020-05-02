@@ -40,8 +40,8 @@ def all_validmatches(AllMatches, owe_ratio):
 		valid_matches = []
 
 		for val in AllMatches:
-			if len(val) == 2 and val[0].distance < val[1].distance * lowe_ratio:
-				valid_matches.append((val[0].trainIdx, val[0].queryIdx))
+			#if len(val) == 2 and val[0].distance < val[1].distance * lowe_ratio:
+			valid_matches.append((val[0].trainIdx, val[0].queryIdx))
 
 		return valid_matches
 
@@ -86,7 +86,9 @@ def find_img_pair(img_pts_dict, lowe_ratio, max_Threshold, m_candidate):
 				inliers = status.ravel().tolist()
 
 				# if match_verification(len(inliers), len(per_match)) is True:
-
+				if k == 25:
+					print(v[i])
+					print(h)
 				# k and v[i] is valid match
 				# h is homo from img k to img v[i]
 				h_cell = homography(h, v[i])
