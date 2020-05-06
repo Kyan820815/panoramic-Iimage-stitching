@@ -27,6 +27,8 @@ class matcher:
 			pts_right = img_data['right']['kp']
 			match_pts_left  = np.float32([pts_left[i].pt for (i, __) in valid_matches])
 			match_pts_right = np.float32([pts_right[i].pt for (__, i) in valid_matches])
+			# show feature match before and after lower concept
+
 			# homography matrix from right to left
 			H, s = self.compute_homography(match_pts_right, match_pts_left)
 			return H
