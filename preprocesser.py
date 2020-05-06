@@ -18,11 +18,13 @@ class preprocesser:
 		self.find_knn()
 
 	def load_data(self, path):
+		cnt   = 0
 		files = os.listdir(path)
 		l = len(files)
 		self.images = [0] * l
 		for file in files:
-			# if adobe dataset, remove -1
+			if file == ".DS_Store":
+				continue
 			idx = int(file[-6:-4]) - 1 
 			self.images[idx] = cv2.imread(path + '/' + file)
 			if len(self.images[idx].shape) == 3:
@@ -32,9 +34,11 @@ class preprocesser:
 			if self.images[idx].shape[0] > 1000:
 				self.images[idx] = cv2.resize(self.images[idx], (2016, 1512))
 				# images[idx] = cv2.resize(images[idx], (1008, 756))
-		
-		# return images
+			cnt += 1
+
+		self.images = self.images[:cnt]
 		self.images = np.array(self.images)
+
 
 	def get_ORB_feature(self, draw):
 		orb = cv2.ORB_create()
@@ -82,7 +86,7 @@ class preprocesser:
 
 		start = 0
 		for i in range(n):
-			print("-------find knn features for image",i)
+			print("------- find knn features for image",i)
 			# compute kd tree by all features except image i
 			extract_feat = np.delete(feature_set, np.s_[start : start+n_feat[i]], axis=0)
 			kd_tree = KDTree(extract_feat, leaf_size = 40)

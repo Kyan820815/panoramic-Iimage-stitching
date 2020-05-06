@@ -9,8 +9,9 @@ from PIL import Image
 from PIL import ImageDraw
 
 class sticher:
-	def __init__(self, matcher):
+	def __init__(self, matcher, roi_improve=False):
 		self.matcher = matcher
+		self.roi_improve = roi_improve
 
 	def img_stitch_left(self, image_left, image_right, homo):
 		# compute shift shift x and y from img left to img right
@@ -54,15 +55,26 @@ class sticher:
 		img_size = (int(end_points[0]), int(end_points[1]))
 		warp_image_right = cv2.warpPerspective(image_right, homo, img_size)
 
+		# re-define stitch image size
+		max_row = max(image_left.shape[0], warp_image_right.shape[0])
+		max_col = max(image_left.shape[1], warp_image_right.shape[1])
+		for i in range(max_col - warp_image_right.shape[1]):
+			warp_image_right = np.column_stack((warp_image_right, np.zeros((warp_image_right.shape[0], 1, 3))))
+		for i in range(max_row - warp_image_right.shape[0]):
+			warp_image_right = np.row_stack((warp_image_right, np.zeros((1, max_col, 3))))
+
+		# since there might some back area in image left but not int image right
+		# we copy those area from image right to image left to remove these back area in image left
+		extract_right = warp_image_right[0:image_left.shape[0], 0:image_left.shape[1]]
+		extract_right[image_left > 0] = 0
+		image_left += np.uint8(extract_right)
 		# merge left and right image
-		x = warp_image_right[0:image_left.shape[0], 0:image_left.shape[1]]
-		x[image_left > 0] = 0
-		image_left += x
 		warp_image_right[0:image_left.shape[0], 0:image_left.shape[1]] = image_left
 		
 		return warp_image_right
 
 	def img_pano(self, images, cur_idx=0):
+		print("------- apply image stiching to panorama")
 		stitch_img = images[cur_idx]
 		stiched_list = [cur_idx]
 
@@ -99,17 +111,39 @@ class sticher:
 			# plt.show()
 
 		pano_image = stitch_img
-
 		# use roi toward pano image
-		# pano_image = self.img_roi(pano_image)
+		print("------- apply roi on panorama image")
+		roi_pano_image = self.img_roi(pano_image)
 
-		return pano_image
+		return pano_image, roi_pano_image
 
 	def img_roi(self, image):
-		image    = cv2.copyMakeBorder(image, 10, 10, 10, 10, cv2.BORDER_CONSTANT, (0, 0, 0))
-		gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-		# find mask image based on given threshold
-		image_th = cv2.threshold(gray_img, 0, 255, cv2.THRESH_BINARY)[1]
+		# compute threshold mask based on image pixel value
+		# using boarder can make us find roi easily
+		image = cv2.copyMakeBorder(image, 10, 10, 10, 10, cv2.BORDER_CONSTANT, (0, 0, 0))
+		r_ch = image[:,:,0].copy()
+		g_ch = image[:,:,1].copy()
+		b_ch = image[:,:,2].copy()
+		r_ch[r_ch > 0] = 1
+		g_ch[g_ch > 0] = 1
+		b_ch[b_ch > 0] = 1
+		image_th = r_ch + g_ch + b_ch
+		image_th[image_th > 0] = 255
+		image_th = np.uint8(image_th)
+
+		# find min boarder from down to top in the midian of col
+		# for roi improvement, usd in heavily twisted image
+		if self.roi_improve == True:
+			midean = int(image_th.shape[1] / 2)
+			for i in range(image_th.shape[0]-1, 0, -1):
+				if image_th[i, midean] == 255:
+					min_boarder = i
+					break
+			image_th = image_th[:i,:]
+			image    = image[:i,:]
+			image_th = cv2.copyMakeBorder(image_th, 10, 10, 10, 10, cv2.BORDER_CONSTANT, (0, 0, 0))
+			image    = cv2.copyMakeBorder(image, 10, 10, 10, 10, cv2.BORDER_CONSTANT, (0, 0, 0))
+
 		# find countours of mask image
 		contours = cv2.findContours(image_th.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 		contours = imutils.grab_contours(contours)
@@ -119,6 +153,9 @@ class sticher:
 		roi = np.zeros(image_th.shape, dtype="uint8")
 		(x, y, w, h) = cv2.boundingRect(c)
 		cv2.rectangle(roi, (x, y), (x+w, y+h), 255, -1)
+		
+		# plt.imshow((image_th).astype(np.uint8))
+		# plt.show()
 
 		# find minimum roi that do not contain any black pixel
 		min_roi = roi.copy()
@@ -127,8 +164,6 @@ class sticher:
 			# update roi
 			min_roi = cv2.erode(min_roi, None)
 			sub = cv2.subtract(min_roi, image_th)
-			# make value < 0 to 0
-			sub[sub < 0] = 0
 
 		# find countours of best roi image
 		contours = cv2.findContours(min_roi.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
