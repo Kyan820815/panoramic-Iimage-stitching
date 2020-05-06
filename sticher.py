@@ -50,7 +50,7 @@ class sticher:
 		# find projection axis from right img to left img
 		end_points = np.dot(homo, np.array([image_right.shape[1], image_right.shape[0], 1]))
 		# make projection homogeneous index = 1
-		end_points = end_points/end_points[-1]
+		end_points = end_points / end_points[-1]
 		img_size = (int(end_points[0]), int(end_points[1]))
 		warp_image_right = cv2.warpPerspective(image_right, homo, img_size)
 
@@ -64,7 +64,6 @@ class sticher:
 
 	def img_pano(self, images, cur_idx=0):
 		stitch_img = images[cur_idx]
-		# stitch_img = self.img_format(stitch_img)
 		stiched_list = [cur_idx]
 
 		n = len(images)
@@ -76,7 +75,7 @@ class sticher:
 					continue
 				if pair_list[j] not in stiched_list:
 					# update index to image needed to be stitched
-					cur_idx = pair_list[j]
+					cur_idx  = pair_list[j]
 					img_pair = images[cur_idx]
 					homo = self.matcher.find_match(stitch_img, img_pair)
 					# not valid match pair, skip
@@ -90,7 +89,6 @@ class sticher:
 			if find_next_idx == False:
 				return stitch_img
 
-			# img_pair   = self.img_format(img_pair)
 			if i < int(n/2):
 				# stich from left to right
 				stitch_img = self.img_stitch_left(stitch_img, img_pair, homo)
@@ -107,14 +105,8 @@ class sticher:
 
 		return pano_image
 
-	def img_format(self, image):
-		image = np.uint8(image)
-		image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-		return image
-
 	def img_roi(self, image):
-		image = cv2.copyMakeBorder(image, 10, 10, 10, 10, cv2.BORDER_CONSTANT, (0, 0, 0))
+		image    = cv2.copyMakeBorder(image, 10, 10, 10, 10, cv2.BORDER_CONSTANT, (0, 0, 0))
 		gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 		# find mask image based on given threshold
 		image_th = cv2.threshold(gray_img, 0, 255, cv2.THRESH_BINARY)[1]
