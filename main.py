@@ -10,6 +10,7 @@ import cv2
 
 def main(args):
 	data_path = data_dir = os.path.dirname(__file__) + "./data/" + args.data
+	result_path = data_dir = os.path.dirname(__file__) + "./data/result"
 	#----------------------------------------------
 	#
 	# step 1: preprocess data
@@ -34,12 +35,17 @@ def main(args):
 	#----------------------------------------------
 	stitcher_obj = sticher(matcher_obj, args.roi_improve)
 	pano_img, roi_pano_img = stitcher_obj.img_pano(processer_obj.images, 0)
+	pano_img     = pano_img.astype(np.uint8)
+	roi_pano_img = roi_pano_img.astype(np.uint8)
 	plt.figure()
 	plt.subplot(2, 1, 1)
-	plt.imshow((pano_img).astype(np.uint8))
+	plt.imshow(pano_img)
 	plt.subplot(2, 1, 2)
-	plt.imshow((roi_pano_img).astype(np.uint8))
+	plt.imshow(roi_pano_img)
 	plt.show()
+
+	cv2.imwrite(result_path + "/" + args.data + "raw.png", pano_img[...,::-1]) 
+	cv2.imwrite(result_path + "/" + args.data + "roi.png", roi_pano_img[...,::-1]) 
 
 	# opencv built-in function for image stitching
 	# stitcher = cv2.createStitcher() if imutils.is_cv3() else cv2.Stitcher_create()
