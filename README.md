@@ -28,3 +28,7 @@ optional arguments:
                         result
 ```
 
+* The data set is on: https://www.dropbox.com/sh/kui1xs38o15xbaw/AACxJ7g6ci0qz_nG0rjujIcMa?dl=0
+
+* Please create data folder in the code directory and result folder in the data folder
+
