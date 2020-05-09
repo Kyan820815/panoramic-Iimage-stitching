@@ -3,6 +3,11 @@ Automatic Panoramic Image Stitching
 
 In this project, we build panorama image stitching with unordered data.
 
+* Requirements:
+	* Python >= 3.5
+	* Python >= 1.8
+	* OpenCV 3.4.2.16
+
 The command is: 
 ```
 	main.py [-h] [--data {shanghai,lab,river,indoor,road,hotel}]
