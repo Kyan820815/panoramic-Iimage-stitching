@@ -12,6 +12,7 @@ def main(args):
 	data_path = data_dir = os.path.dirname(__file__) + "./data/" + args.data
 	result_path = data_dir = os.path.dirname(__file__) + "./data/result"
 	#----------------------------------------------
+	#
 	# step 1: preprocess data
 	#	(1) load data
 	#	(2) get feature
@@ -19,12 +20,14 @@ def main(args):
 	#----------------------------------------------
 	processer_obj = preprocesser(data_path)
 	#----------------------------------------------
+	#
 	# step 2: find relation between all images
 	#	(1) construct candidate map
 	#	(2) compute homography matrix
 	#----------------------------------------------
 	matcher_obj  = matcher(processer_obj.img_pts_dict, args.candidate, args.lowe_ratio, args.ransac_th)
 	#----------------------------------------------
+	#
 	# step 3: stich all images and make panorama
 	#	(1) select best candidate based on given img
 	#	(2) stich each by each
