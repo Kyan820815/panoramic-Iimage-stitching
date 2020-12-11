@@ -1,13 +1,8 @@
 # Automatic Panoramic Image Stitching 
 
-In this project, we build panorama image stitching with unordered data from [Automatic Panoramic Image Stitching using Invariant Features](http://matthewalunbrown.com/papers/ijcv2007.pdf). We focused on finding local features to find matches between all of the images in a data set. Also, we successfully stitched images into panoramas using SURF features, RANSAC feature matching, homography, etc. After applying ROI the final outcome seems more elegant which can be directly used for advertisement sor business promotions.
+In this project, we build panorama image stitching with unordered data from [Automatic Panoramic Image Stitching using Invariant Features](http://matthewalunbrown.com/papers/ijcv2007.pdf). We focused on finding local features used in matches between all of the images in a data set. Also, we successfully stitched images without specific order into panoramas using SURF features, RANSAC feature matching, homography, etc. After applying ROI the final outcome seems more elegant which can be directly used for advertisements or business promotions.
 
 ![our panoramic image](./image/pano.png)
-
-## Requirements:
-* Python >= 3.5
-* Python >= 1.8
-* OpenCV 3.4.2.16
 
 ## Install
 ```
