@@ -1,14 +1,21 @@
-# CSCI1430-Final-Project
-Automatic Panoramic Image Stitching  
+# Automatic Panoramic Image Stitching 
 
-In this project, we build panorama image stitching with unordered data.
+In this project, we build panorama image stitching with unordered data from [Automatic Panoramic Image Stitching using Invariant Features](http://matthewalunbrown.com/papers/ijcv2007.pdf). We focused on finding local features to find matches between all of the images in a data set. Also, we successfully stitched images into panoramas using SURF features, RANSAC feature matching, homography, etc. After applying ROI the final outcome seems more elegant which can be directly used for advertisement sor business promotions.
 
-* Requirements:
-	* Python >= 3.5
-	* Python >= 1.8
-	* OpenCV 3.4.2.16
+![our panoramic image](./image/pano.png)
 
-The command is: 
+## Requirements:
+* Python >= 3.5
+* Python >= 1.8
+* OpenCV 3.4.2.16
+
+## Install
+```
+git clone git@github.com:Kyan820815/CSCI1430-Final-Project.git
+cd CSCI1430-Final-Project
+```
+
+## Run
 ```
 	main.py [-h] [--data {shanghai,lab,river,indoor,road,hotel}]
                	 [--candidate CANDIDATE] [--lowe_ratio LOWE_RATIO]
@@ -33,7 +40,7 @@ optional arguments:
                         result
 ```
 
-* The data set is on: https://www.dropbox.com/sh/kui1xs38o15xbaw/AACxJ7g6ci0qz_nG0rjujIcMa?dl=0
-
-* Please create data folder in the code directory and result folder in the data folder
+## Data
+The data set is on: https://www.dropbox.com/sh/kui1xs38o15xbaw/AACxJ7g6ci0qz_nG0rjujIcMa?dl=0\
+Please create data folder in the code directory and result folder in the data folder
 
